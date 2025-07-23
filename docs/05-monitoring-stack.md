@@ -286,7 +286,6 @@ avg(node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100
 avg(rate(node_network_receive_bytes_total[5m]) + rate(node_network_transmit_bytes_total[5m])) by (instance)
 ```
 
-**[IMG-17: Total Cluster Network Traffic]**
 <img width="1125" height="604" alt="image" src="https://github.com/user-attachments/assets/e8ebab07-e23b-4eaa-a40f-2c9aa4b3b516" />
 
 #### File Descriptors and Sockets
@@ -295,15 +294,12 @@ sum(node_filefd_allocated)
 sum(node_sockstat_TCP_alloc)
 ```
 
-**[IMG-18: Active Files and Sockets]**
 <img width="1125" height="613" alt="image" src="https://github.com/user-attachments/assets/ea9b43dc-5210-4cb0-98bb-292ec9781f26" />
 
 #### Disk Usage
 ```promql
 (node_filesystem_free_bytes{fstype!~"tmpfs|iso9660"}/node_filesystem_size_bytes{fstype!~"tmpfs|iso9660"}) * 100
 ```
-
-**[IMG-19: Disk Usage Panel]**
 <img width="1125" height="610" alt="image" src="https://github.com/user-attachments/assets/e500b31e-2d59-4bea-a1eb-559b3991f8b3" />
 
 ### Complete Dashboard Overview
