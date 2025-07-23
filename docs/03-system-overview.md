@@ -2,10 +2,7 @@
 
 ## MrNamCoinSwarm System Overview
 
-**[IMG-01: MrNamCoinSwarm System Architecture Diagram]**
-*Location in original text: "1.1. Kiến trúc Tổng thể (có hình)"*
-
-![System Architecture Diagram](../assets/01-system-architecture.png)
+<img width="1180" height="729" alt="image" src="https://github.com/user-attachments/assets/b691bd6e-82c3-4ebe-9649-7eb9798b1133" />
 
 MrNamCoinSwarm is a microservices system built on the Docker Swarm platform, consisting of 5 main services that work together to create a distributed coin mining simulation.
 
@@ -45,11 +42,7 @@ MrNamCoinSwarm is a microservices system built on the Docker Swarm platform, con
 - **Purpose**: Provides fast data access and persistence
 
 ## System Workflow
-
-**[IMG-02: System Workflow Diagram]**
-*Location in original text: "1.2. Luồng Hoạt động (có hình)"*
-
-![System Workflow Diagram](../assets/02-system-workflow.png)
+<img width="890" height="519" alt="image" src="https://github.com/user-attachments/assets/d823efdc-a747-42c7-8844-40d8a1ed7433" />
 
 ### Detailed Process Flow
 
@@ -63,11 +56,7 @@ MrNamCoinSwarm is a microservices system built on the Docker Swarm platform, con
 ## Docker Swarm Deployment Results
 
 ### a. LAN Network Setup Results on VirtualBox
-
-**[IMG-03: VirtualBox Network Configuration]**
-*Location in original text: "a. Kết quả xây dựng mạng LAN trên VitualBox (có hình)"*
-
-![VirtualBox Network Setup](../assets/03-virtualbox-network.png)
+<img width="741" height="292" alt="image" src="https://github.com/user-attachments/assets/6376e3c9-5abb-4efb-b63b-3d56aff88181" />
 
 - Successfully established network with IP range: 192.168.10.1
 - Network adapter configuration: Host-only
@@ -75,11 +64,7 @@ MrNamCoinSwarm is a microservices system built on the Docker Swarm platform, con
 - Successful ping tests between all nodes
 
 ### b. Docker Swarm Deployment Results
-
-**[IMG-04: Docker Swarm Cluster Structure]**
-*Location in original text: "b. Kết quả triển khai Docker Swarm - Cấu trúc cụm (có hình)"*
-
-![Docker Swarm Cluster](../assets/04-swarm-cluster.png)
+<img width="206" height="63" alt="image" src="https://github.com/user-attachments/assets/e70f9558-a24b-49a7-90ee-0295565f9f00" />
 
 #### Cluster Architecture
 - **Manager Nodes**: 3 nodes (High Availability configuration)
@@ -89,24 +74,15 @@ MrNamCoinSwarm is a microservices system built on the Docker Swarm platform, con
 - **Leader Election**: Automatic failover when leader fails
 - **Manager Distribution**: Even distribution across different nodes
 
-**[IMG-05: Node Status Display]**
-*Location in original text: "Trạng thái nodes (có hình)"*
-
-![Node Status](../assets/05-node-status.png)
+<img width="962" height="256" alt="image" src="https://github.com/user-attachments/assets/e9162308-7507-4a03-ab47-f43172f1ffb7" />
 
 ### c. Service Deployment Results
+<img width="960" height="31" alt="image" src="https://github.com/user-attachments/assets/9262f463-7bfe-4685-b324-33f06ef2b8d5" />
 
-**[IMG-06: Service Deployment Status]**
-*Location in original text: "c. Kết quả triển khai services (có hình)"*
-
-![Service Deployment](../assets/06-service-deployment.png)
+<img width="960" height="89" alt="image" src="https://github.com/user-attachments/assets/6caab232-9118-42fd-8629-563fe702c131" />
 
 ### d. High Availability Configuration
-
-**[IMG-07: High Availability Setup]**
-*Location in original text: "d. Cấu hình High Availability (có hình)"*
-
-![High Availability Configuration](../assets/07-ha-configuration.png)
+<img width="964" height="95" alt="image" src="https://github.com/user-attachments/assets/d7fea6bd-e386-4b9a-b9d7-0694975af47e" />
 
 #### Manager Node Configuration
 - **3 Manager Nodes**: Ensures fault tolerance
@@ -115,24 +91,9 @@ MrNamCoinSwarm is a microservices system built on the Docker Swarm platform, con
 - **Load Distribution**: Even workload distribution
 
 ### e. System Monitoring Results
+<img width="891" height="269" alt="image" src="https://github.com/user-attachments/assets/c577af94-f7ac-4740-a518-4618f672009d" />
 
-**[IMG-08: Service Location Monitoring (WebUI)]**
-*Location in original text: "Kiểm tra vị trí service của 1 service (webui) (có hình)"*
-
-![Service Location Monitoring](../assets/08-service-location.png)
-
-**[IMG-09: Resource Monitoring Dashboard]**
-*Location in original text: "Monitoring tài nguyên (có hình)"*
-
-![Resource Monitoring](../assets/09-resource-monitoring.png)
-    A[Worker Service] --> B[RNG Service]
-    B --> C[Random Number]
-    A --> D[Hasher Service]
-    D --> E[Hash Result]
-    E --> F[Redis]
-    F --> G[WebUI Service]
-    G --> H[User Display]
-```
+<img width="884" height="48" alt="image" src="https://github.com/user-attachments/assets/a0b28976-a4ab-462e-9af2-193cd64f991c" />
 
 ### Detailed Process Flow
 
@@ -151,8 +112,6 @@ MrNamCoinSwarm is a microservices system built on the Docker Swarm platform, con
 - **Connectivity**: Full mesh connectivity between all nodes
 - **Verification**: Successful ping tests between all nodes
 
-![Network Configuration](../assets/network-configuration.png)
-
 ### Cluster Architecture
 - **Manager Nodes**: 3 nodes (High Availability configuration)
 - **Worker Nodes**: 7 nodes
@@ -160,8 +119,6 @@ MrNamCoinSwarm is a microservices system built on the Docker Swarm platform, con
 - **Quorum**: 2 (minimum managers needed for operation)
 - **Leader Election**: Automatic failover when leader fails
 - **Manager Distribution**: Even distribution across different nodes
-
-![Docker Swarm Cluster](../assets/swarm-cluster.png)
 
 ### High Availability Configuration
 
@@ -189,15 +146,11 @@ The deployed system includes comprehensive monitoring:
 - Container location awareness
 - Service migration tracking
 
-![Service Location Monitoring](../assets/service-location.png)
-
 #### Resource Monitoring
 - CPU utilization tracking
 - Memory usage monitoring
 - Network I/O statistics
 - Disk usage analytics
-
-![Resource Monitoring](../assets/resource-monitoring.png)
 
 ## Network Architecture
 
