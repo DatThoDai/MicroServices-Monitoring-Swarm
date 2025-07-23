@@ -2,19 +2,10 @@
 
 ## Overview
 
-**[IMG-10: ELK Stack Architecture Overview]**
-*Location in original text: "2.TRIỂN KHAI ELK STACK (có hình)"*
-
-![ELK Stack Architecture](../assets/10-elk-architecture.png)
-
-T6. Click "Create index pattern"
+<img width="1264" height="710" alt="image" src="https://github.com/user-attachments/assets/df90e516-d2fe-4e65-b3c9-2e861d471a7f" />
 
 ### Dashboard Creation
-
-**[IMG-11: Kibana Dashboard]**
-*Location in original text: "2.4.3. Xây dựng Dashboard (có hình)"*
-
-![Kibana Dashboard](../assets/11-kibana-dashboard.png)
+<img width="1125" height="538" alt="image" src="https://github.com/user-attachments/assets/9c356d25-d80a-4359-8ec0-79275f740b5b" />
 
 Create visualizations and dashboards for:
 - **Log Volume**: Track log frequency over time
