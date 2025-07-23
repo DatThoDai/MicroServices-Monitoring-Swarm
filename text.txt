@@ -1,0 +1,723 @@
+
+MỞ ĐẦU
+Trong bối cảnh công nghệ thông tin phát triển mạnh mẽ, kiến trúc microservices đã trở thành một xu hướng quan trọng, cho phép xây dựng các hệ thống phần mềm linh hoạt, dễ mở rộng và bảo trì. Tuy nhiên, sự phức tạp trong việc quản lý và giám sát các dịch vụ độc lập đòi hỏi những giải pháp hiệu quả để đảm bảo hiệu suất và độ tin cậy của hệ thống. Docker Swarm, với vai trò là một công cụ orchestration mạnh mẽ, cùng với các công cụ giám sát như ELK Stack, Prometheus, Grafana, InfluxDB và Reverse Proxy (Nginx), đã cung cấp một nền tảng lý tưởng để triển khai và tối ưu hóa các hệ thống microservices.
+Báo cáo này trình bày quá trình triển khai, giám sát và tối ưu hóa hệ thống phần mềm MrNamCoinSwarm dựa trên kiến trúc microservices, sử dụng Docker Swarm làm nền tảng orchestration. Mục tiêu chính là thiết lập một hệ thống ổn định, thu thập và phân tích các metrics quan trọng như CPU Usage, Memory Usage, Network I/O, Block I/O, đồng thời quản lý log hiệu quả để phát hiện và khắc phục sự cố kịp thời. Các công cụ như ELK Stack được sử dụng để xử lý và trực quan hóa log, trong khi Prometheus, Grafana và InfluxDB hỗ trợ giám sát và lưu trữ metrics dài hạn. Ngoài ra, Reverse Proxy với Nginx được triển khai để tối ưu hóa truy cập đến các dịch vụ.
+Phạm vi của báo cáo tập trung vào việc mô tả chi tiết quá trình triển khai các thành phần của hệ thống, từ cấu hình Logstash, Elasticsearch, Kibana đến thiết lập pipeline thu thập metrics với Prometheus và trực quan hóa qua Grafana. Đồng thời, báo cáo cũng phân tích kết quả giám sát, đề xuất các phương pháp tối ưu hóa và đánh giá hiệu quả của hệ thống dựa trên các tiêu chí đã đề ra.
+
+
+
+Reverse Proxy là một server trung gian đứng giữa client và các backend servers, nhận yêu cầu từ client và chuyển tiếp đến các dịch vụ phù hợp trong hệ thống. Không giống Forward Proxy (đại diện cho client), Reverse Proxy đại diện cho server, cung cấp một điểm truy cập thống nhất và che giấu cấu trúc backend. Trong kiến trúc microservices, Reverse Proxy đóng vai trò quan trọng trong việc quản lý các dịch vụ độc lập, đảm bảo tính linh hoạt và hiệu suất.
+Lợi ích của Reverse Proxy:
+●	Load balancing: Phân phối yêu cầu đều giữa các replicas của dịch vụ, tối ưu hóa tài nguyên và tăng khả năng chịu tải.
+●	Bảo mật: Ẩn thông tin về backend servers, giảm nguy cơ tấn công trực tiếp.
+●	SSL/TLS termination: Xử lý mã hóa và giải mã ở proxy, giảm tải cho backend.
+●	Caching: Lưu trữ nội dung tĩnh để tăng tốc phản hồi.
+●	Compression: Nén dữ liệu để giảm băng thông.
+●	URL rewriting và routing linh hoạt: Định tuyến yêu cầu dựa trên URL, cho phép quản lý dễ dàng các dịch vụ với endpoint khác nhau.
+Nginx là một phần mềm mã nguồn mở được sử dụng rộng rãi làm web server và Reverse Proxy. Với hiệu suất cao, khả năng xử lý hàng nghìn kết nối đồng thời, và cấu hình đơn giản, Nginx là lựa chọn lý tưởng cho các hệ thống microservices. Nginx hỗ trợ các tính năng như load balancing, caching, và URL routing, đồng thời tích hợp tốt với Docker Swarm nhờ khả năng chạy dưới dạng container và xử lý định tuyến lưới (routing mesh). Trong hệ thống MrNamCoinSwarm, Nginx được chọn để đảm bảo truy cập thống nhất đến các dịch vụ như Prometheus, Grafana, Kibana, và các dịch vụ DockerCoins, đồng thời hỗ trợ giám sát và bảo mật.
+
+CHƯƠNG 2: TRIỂN KHAI HỆ THỐNG
+1.	TỔNG QUAN HỆ THỐNG MRNAMCOINSWARM
+	1.1. Kiến trúc Tổng thể
+ (có hình)
+MrNamCoinSwarm là một hệ thống microservices được xây dựng trên nền tảng Docker Swarm, bao gồm 5 dịch vụ chính:
+1.	WebUI Service
+●	Port: 8000
+●	Image: webui:coinswarm
+●	Chức năng: Giao diện người dùng, hiển thị số lượng coins được tạo ra
+2.	RNG (Random Number Generator) Service
+●	Port: 8001
+●	Image: rng:coinswarm
+●	Chức năng: Tạo số ngẫu nhiên cho quá trình mining
+3.	Hasher Service
+●	Port: 8002
+●	Image: hasher:coinswarm
+●	Chức năng: Tính toán giá trị băm từ số ngẫu nhiên
+4.	Service
+●	Image: worker:coinswarm
+●	Chức năng: Điều phối quá trình mining giữa RNG và Hasher
+5.	Redis Service
+●	Image: redis:latest
+●	Chức năng: Lưu trữ dữ liệu tạm thời và kết quả mining
+1.2. Luồng Hoạt động
+ (có hình)
+1.	Worker service yêu cầu số ngẫu nhiên từ RNG service
+2.	Worker gửi số ngẫu nhiên đến Hasher để tính toán
+3.	Kết quả được lưu vào Redis
+4.	WebUI đọc dữ liệu từ Redis và hiển thị
+	1.3. Kết quả triển khai Docker Swarm
+a.	Kết quả xây dựng mạng LAN trên VitualBox
+	Đã thiết lập thành công mạng với dải IP: 192.168.10.1
+Cấu hình network adapter: Host-only
+Kết nối thông suốt giữa các nodes
+Kiểm tra ping thành công giữa các nodes
+ (có hình)
+b.	Kết quả triển khai Docker Swarm
+		Cấu trúc cụm:
+ (có hình)
+➔	Số lượng manager nodes: 3 nodes
+➔	Số lượng worker nodes: 7 nodes
+➔	Tổng số nodes: 10 nodes
+Trạng thái nodes
+ (có hình)
+c.	Kết quả triển khai services
+	 (có hình)
+	 
+d.	Cấu hình High Availability
+	 (có hình)
+➔	Manager nodes được cấu hình trong chế độ HA
+➔	Quorum: 2 (minimum managers needed)
+➔	Leader election: Tự động khi leader fails
+➔	Manager distribution: Đều trên các nodes khác nhau
+e.	Kết quả monitoring hệ thống
+Kiểm tra vị trí service của 1 service ( webui )
+  (có hình)
+Monitoring tài nguyên
+ (có hình)
+
+2.TRIỂN KHAI ELK STACK
+ (có hình)
+2.1. Cấu hình Elasticsearch
+Tạo overlay network loggingnet
+sudo docker network create --driver overlay --attachable loggingnet
+
+
+Tạo volume es_data cho dữ liệu Elasticsearch
+sudo docker volume create es_data
+
+
+Triển khai Elasticsearch với cấu hình:
+Single node mode
+Disabled security
+Memory limit 512MB
+Health check mỗi 30s
+Port 9200
+sudo docker service create \
+  --name elasticsearch \
+  --network loggingnet \
+  --replicas 1 \
+  -e "discovery.type=single-node" \
+  -e "xpack.security.enabled=false" \
+  -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
+  --mount type=volume,source=es_data,target=/usr/share/elasticsearch/data \
+  --publish published=9200,target=9200 \
+  --constraint 'node.role==manager' \
+  --health-cmd="curl -f http://localhost:9200/_cluster/health || exit 1" \
+  --health-interval=30s \
+  docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+
+
+2.2 Cấu hình LogsStash
+Tạo file cấu hình logstash.conf với:
+Pipeline Logstash :
+Input: Nhận logs qua giao thức GELF từ port 12201
+Filter:
+Phân loại logs theo service name
+Thêm metadata (node_hostname, environment)
+Phân loại log level dựa trên nội dung
+Chuẩn hóa timestamp
+Output:
+Gửi đến Elasticsearch với index pattern theo ngày
+Có retry mechanism khi gặp lỗi
+cat << 'EOF' > logstash.conf
+input {
+  gelf {
+    port => 12201
+    type => docker
+    use_tcp => false
+    codec => json
+  }
+}
+filter {
+  if [container_name] in ["rng", "hasher", "worker", "webui"] {
+    mutate {
+      add_field => {
+        "service_name" => "%{[container_name]}"
+        "node_hostname" => "%{[host]}"
+        "environment" => "dockercoins"
+      }
+      remove_field => ["_source", "stream", "tag"]
+    }
+    date {
+      match => ["timestamp", "ISO8601"]
+      target => "@timestamp"
+    }
+
+    if [message] =~ /(?i)(error|failed|exception|critical|fatal)/ {
+      mutate { add_field => { "log_level" => "ERROR" } }
+    } else if [message] =~ /(?i)(warn|warning|deprecated)/ {
+      mutate { add_field => { "log_level" => "WARNING" } }
+    } else {
+      mutate { add_field => { "log_level" => "INFO" } }
+    }
+  }
+}
+output {
+  elasticsearch {
+    hosts => ["elasticsearch:9200"]
+    index => "dockercoins-logs-%{+YYYY.MM.dd}"
+    template_name => "dockercoins"
+    template_overwrite => true
+    retry_on_conflict => 5
+  }
+  stdout { codec => rubydebug }
+}
+EOF
+
+
+
+
+Tạo Docker config từ file cấu hình Logstash:
+sudo docker config create logstash_config logstash.conf
+
+
+Triển khai Logstash với:
+2 replicas
+Memory limit 512MB
+Health check mỗi 30s
+UDP port 12201
+sudo docker service create \
+  --name logstash \
+  --network loggingnet \
+  --replicas 2 \
+  -e "xpack.monitoring.enabled=false" \
+  -e "LS_JAVA_OPTS=-Xms512m -Xmx512m" \
+  --config source=logstash_config,target=/usr/share/logstash/pipeline/logstash.conf \
+  --publish mode=host,target=12201,published=12201,protocol=udp \
+  --health-cmd="curl -f http://localhost:9600 || exit 1" \
+  --health-interval=30s \
+  docker.elastic.co/logstash/logstash:8.12.0
+
+
+
+
+2.3. Cấu hình Kibana
+1 replica
+Kết nối với Elasticsearch
+Port 5601
+Disabled security
+sudo docker service create \
+  --name kibana \
+  --network loggingnet \
+  --replicas 1 \
+  -e "ELASTICSEARCH_HOSTS=http://elasticsearch:9200" \
+  -e "XPACK_SECURITY_ENABLED=false" \
+  --publish 5601:5601 \
+  docker.elastic.co/kibana/kibana:8.12.0
+
+
+
+
+2.4. Tích hợp với DockerCoins
+2.4.1. Cấu hình Docker Log Driver
+# Cấu hình trên tất cả các node
+sudo tee /etc/docker/daemon.json << 'EOF'
+{
+  "log-driver": "gelf",
+  "log-opts": {
+    "gelf-address": "udp://tasks.logstash:12201",
+    "tag": "{{.Name}}/{{.ID}}",
+    "gelf-compression-type": "none"
+  }
+}
+EOF
+
+# Restart Docker daemon
+sudo systemctl restart docker
+
+# Cập nhật các service để áp dụng log driver mới
+sudo docker service update --force redis
+sudo docker service update --force rng
+sudo docker service update --force hasher
+sudo docker service update --force worker
+sudo docker service update --force webui
+
+
+2.4.2.Thiết lập Index Pattern trong Kibana
+1.	Truy cập Kibana UI (http://<manager_ip>:5601)
+2.	Vào Menu > Stack Management > Index Patterns
+3.	Click "Create index pattern"
+4.	Nhập "dockercoins-logs-" làm index pattern
+5.	Chọn @timestamp làm Time field
+6.	Click "Create index pattern"
+2.4.3. Xây dựng Dashboard
+ (có hình)
+3.Triển khai Monitoring Stack
+3.1 Cấu hình Prometheus
+Tạo network monitoring
+sudo docker network create --driver overlay --attachable monitoring
+
+
+Tạo volume prometheus_data
+sudo docker volume create prometheus_data
+
+
+Tạo file cấu hình cho Prometheus
+
+cat << 'EOF' > prometheus.yml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+
+  - job_name: 'node-exporter'
+    dns_sd_configs:
+      - names: ['tasks.node-exporter']
+        type: 'A'
+        port: 9100
+
+
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['172.18.0.1:9323']  # Sử dụng IP của Docker host
+
+
+  - job_name: 'cadvisor'  # Thêm job cho cAdvisor
+    dns_sd_configs:
+      - names: ['tasks.cadvisor']
+        type: 'A'
+        port: 8080
+
+
+remote_write:
+  - url: "http://influxdb:8086/api/v1/prom/write?db=prometheus&u=admin&p=admin123"
+
+
+remote_read:
+  - url: "http://influxdb:8086/api/v1/prom/read?db=prometheus&u=admin&p=admin123"
+
+EOF
+
+
+
+
+
+Tạo Docker config từ file cấu hình Prometheus:
+sudo docker config create prometheus_config prometheus.yml
+
+
+Triển khai Node Exporter (để thu thập metrics từ các nodes):
+sudo docker service create \
+  --name node-exporter \
+  --mode global \
+  --network monitoring \
+  --mount type=bind,source=/proc,target=/host/proc,readonly \
+  --mount type=bind,source=/sys,target=/host/sys,readonly \
+  --mount type=bind,source=/,target=/rootfs,readonly \
+  -e HOST_HOSTNAME={{.Node.Hostname}} \
+  --publish published=9100,target=9100 \  # Thêm port publishing
+  prom/node-exporter:latest \
+  --path.procfs=/host/proc \
+  --path.sysfs=/host/sys \
+  --path.rootfs=/rootfs \
+  --collector.filesystem.mount-points-exclude="^/(sys|proc|dev|host|etc)($$|/)"
+
+
+
+Triển khai Prometheus: 
+Cấu hình Prometheus với:
+Scrape interval 15s
+Monitoring các service: prometheus, node-exporter, docker
+Remote write/read với InfluxDB
+
+sudo docker service create \
+  --name prometheus \
+  --network monitoring \
+  --mount type=volume,source=prometheus_data,target=/prometheus \
+  --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
+  --config source=prometheus_config,target=/etc/prometheus/prometheus.yml \
+  -p 9090:9090 \
+  prom/prometheus:latest \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/prometheus \
+  --web.console.libraries=/usr/share/prometheus/console_libraries \
+  --web.console.templates=/usr/share/prometheus/consoles
+
+
+
+
+3.2 Cấu hình InfluxDB
+Tạo volume influxdb_data
+sudo docker volume create influxdb_data
+
+
+Triển khai InfluxDB với:
+Database: prometheus
+Admin user/password
+Port 8086
+sudo docker service create \
+    --name influxdb \
+    --network monitoring \
+    --mount type=volume,source=influxdb_data,target=/var/lib/influxdb \
+    -e INFLUXDB_DB=prometheus \
+    -e INFLUXDB_ADMIN_USER=admin \
+    -e INFLUXDB_ADMIN_PASSWORD=admin123 \
+    -e INFLUXDB_HTTP_AUTH_ENABLED=true \
+    -p 8086:8086 \
+    influxdb:1.8
+
+
+3.3 Cấu hình Grafana
+Tạo volume grafana_data
+sudo docker volume create grafana_data
+
+
+
+Triển khai Grafana với:
+Port 3000
+Disabled sign up
+
+sudo docker service create \
+  --name grafana \
+  --network monitoring \
+  --mount type=volume,source=grafana_data,target=/var/lib/grafana \
+  -e "GF_SECURITY_ADMIN_PASSWORD=admin123" \
+  -e "GF_USERS_ALLOW_SIGN_UP=false" \
+  --publish published=3000,target=3000 \
+  grafana/grafana:latest
+
+
+
+3.4. Cấu hình Docker daemon trên tất cả các node để expose metrics
+
+sudo nano /etc/docker/daemon.json
+ (có hình)
+
+
+Truy vấn dữ liệu metrics được thu thập được lưu trữ trong InfluxDB chạy trên swarm
+Trong mô hình triển khai trên Docker Swarm, InfluxDB thường được chạy như một dịch vụ (service) trên một hoặc nhiều node trong cụm Swarm, giúp đảm bảo tính khả dụng và mở rộng.
+	Các bướcđã triển khai đồng bộ:
+B1: Prometheus được cài đặt và cấu hình scrape exporte node_exporter
+B2: InfuxDB được cài đặt và cấu hình với Port 8086
+B3: Thêm cấu hình remote_write vào file prometheus.yml để Prometheus gửi dữ liệu sang InfluxDB
+B4: Truy vấn dữ liệu trong infuxDB
+Cấu hình remote_write cho file prometheus.yml với tên trong infuxDB promethues
+Lệnh để truy cập vào InfluxDB:
+sudo docker exec -it $(sudo docker ps --filter name=influxdb --format '{{.ID}}') influx
+ 
+Sau khi vào được InfluxDB sử dụng các lệnh SQL để truy xuất dữ liệu:
+show databases:  xem danh sách các database đã lưu 
+ (có hình)
+use prometheus: truy cập vào database prometheus
+show measurements: hiển thị tất cả các metrics đã được ghi vào trong database
+ (có hình)
+ 
+  
+Truy xuất dữ liệu CPU:
+
+SELECT mean("value") FROM "node_cpu_seconds_total"
+WHERE "mode" = 'user' AND time > now() - 5m
+GROUP BY time(1m), "instance";
+
+(có hình)
+ 
+ 
+Truy xuất dữ liệu memory
+
+SELECT mean("value") FROM "node_memory_Active_bytes"
+WHERE time > now() - 5m
+GROUP BY time(1m), "instance";
+
+(có hình)
+  
+Truy xuất dữ liệu network
+
+SELECT derivative(mean("value"), 1s) FROM "node_network_receive_bytes_total"
+WHERE "device" != 'lo' AND time > now() - 5m
+GROUP BY time(1m), "instance", "device";
+
+ (có hình)
+ 
+Truy xuất file đang mở và socket
+
+SELECT "value" FROM "node_filefd_allocated"
+WHERE time > now() - 5m
+
+ (có hình)
+
+SELECT "value" FROM "node_sockstat_TCP_alloc"
+WHERE time > now() - 5m
+
+(có hình)
+
+ 
+Dashboard sử dụng Promethus/Grafana để phân tích, giám sát hiệu suất swarm
+1 . Tạo Dashboard trên GUI
+Truy câp vào web với đường dẫn http://<Ip_Node>:3000 với user: admin passwd: admin
+Add new data source Prometheus sau đó vào Dashboards để Add visualization
+  (có hình)
+2. Trực quan hóa dữ liệu
+Sử dụng PromSQL truy vấn các dữ liệu trên Prometheus và trực quan hóa lên Grafana
+Phần trăm CPU đang sử dụng trên Swarm
+avg(rate(node_cpu_seconds_total{mode!="idle"}[5m])) * 100
+(có hình)
+ 
+Tổng CPU container đã sử dụng
+
+sum(rate(container_cpu_usage_seconds_total[1m])) by (service_name)
+(có hình)
+
+  
+Phần trăm Memory đang sử dụng trên Swarm
+avg(node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100
+(có hình)
+ 
+ 
+Tổng lưu lượng mạng của toàn cụm (Download + Upload)
+
+avg(rate(node_network_receive_bytes_total[5m]) + rate(node_network_transmit_bytes_total[5m])) by (instance)
+(có hình)
+
+  
+Tổng File đang mở và socket đang hoạt động
+
+sum(node_filefd_allocated
+sum(node_sockstat_TCP_alloc)
+
+(có hình)
+  
+Disk 
+
+(node_filesystem_free_bytes{fstype!~"tmpfs|iso9660"}/node_filesystem_size_bytes{fstype!~"tmpfs|iso9660"}) * 100
+
+(có hình)
+  
+Tổng thể Dashboard để giám sát 
+  
+(có hình)
+
+
+
+4. TRIỂN KHAI REVERSE PROXY VỚI NGINX
+Reverse Proxy đóng vai trò quan trọng trong hệ thống MrNamCoinSwarm, đảm bảo yêu cầu từ client được định tuyến chính xác đến các dịch vụ microservices như Prometheus, Grafana, Kibana, và các dịch vụ DockerCoins (rng, hasher, webui), đồng thời cung cấp các tính năng như load balancing và bảo mật. Trong dự án này, nhóm sử dụng Nginx làm Reverse Proxy, triển khai trên cụm Docker Swarm để tận dụng khả năng orchestration và định tuyến lưới (routing mesh).
+Quy trình triển khai:
+     4.1. Tạo network overlay cho Reverse Proxy
+Để kết nối Nginx với các dịch vụ, tạo một network overlay có tên proxy:
+sudo docker network create --driver overlay --attachable proxy
+
+Network này cho phép Nginx giao tiếp với các dịch vụ trên các network khác nhau (monitoring, loggingnet, coinswarmnet) trong cụm Swarm.
+     4.2. Cấu hình Nginx
+Để đảm bảo Reverse Proxy hoạt động hiệu quả và dễ dàng bảo trì, nhóm đã thiết kế các file cấu hình Nginx một cách chi tiết, với các thông số tối ưu cho hệ thống MrNamCoinSwarm. Dưới đây là nội dung đầy đủ của hai file cấu hình chính, kèm theo giải thích từng khối cấu hình:
+○  nginx.conf: Định nghĩa cấu hình chính của Nginx, bao gồm worker processes, log format, và các thiết lập cơ bản.
+ (có hình)
+Giải thích:
+·        user nginx: Chỉ định Nginx chạy với người dùng nginx, đảm bảo an toàn.
+·        worker_processes 1: Sử dụng một tiến trình worker để đơn giản hóa trong môi trường thử nghiệm. Trong sản xuất, có thể thay bằng auto để tối ưu hiệu suất.
+·        error_log và access_log: Định nghĩa vị trí và định dạng log, với main cung cấp thông tin chi tiết như IP, trạng thái yêu cầu.
+·        events: Cho phép xử lý tối đa 1024 kết nối đồng thời mỗi worker.
+·        http: Khối cấu hình chính, hỗ trợ MIME types và include các file cấu hình con.
+○  default.conf: Định nghĩa các quy tắc định tuyến URL (URL routing) cho các dịch vụ.  
+  (có hình)
+ 
+Cụ thể : 
+■  	/prometheus/ trỏ đến prometheus:9090.
+■  	/grafana/ trỏ đến grafana:3000.
+■  	/kibana/ trỏ đến kibana:5601.
+■  	/rng/, /hasher/, /webui/ trỏ đến các dịch vụ DockerCoins tương ứng.
+■  	/metrics/ trỏ đến node-exporter:9100 để thu thập metrics hệ thống.
+Lợi ích:
+·        Định tuyến chính xác: Sử dụng tasks.<service_name> tận dụng tính năng service discovery của Swarm, đảm bảo định tuyến linh hoạt ngay cả khi container di chuyển giữa các node.
+·        Đơn giản hóa cổng: Gộp các dịch vụ DockerCoins về cổng 80 giúp dễ dàng quản lý hơn.
+·        Khả năng mở rộng: Cấu hình hỗ trợ thêm dịch vụ mới bằng cách thêm các khối location.
+Các file cấu hình được chuyển thành Docker configs để sử dụng trong Swarm:
+sudo docker config create nginx_conf nginx.conf
+sudo docker config create default_conf default.conf
+4.3. Triển khai dịch vụ Nginx
+ Dịch vụ Nginx được triển khai với các thông số sau:
+sudo docker service create \
+  --name nginx \
+  --config source=nginx_conf,target=/etc/nginx/nginx.conf \
+  --config source=default_conf,target=/etc/nginx/conf.d/default.conf \
+  --network proxy \
+  --network monitoring \
+  --network loggingnet \
+  --network coinswarmnet \
+  --publish published=80,target=80 \
+  nginx:latest
+
+
+○	Dịch vụ được kết nối với nhiều network (proxy, monitoring, loggingnet, coinswarmnet) để giao tiếp với tất cả các dịch vụ trong hệ thống.
+○	Cổng 80 được ánh xạ để nhận yêu cầu từ client.
+○	Swarm routing mesh đảm bảo yêu cầu đến bất kỳ node nào trong cụm (ví dụ: 192.168.10.91:80) đều được chuyển tiếp đến container Nginx.
+4.4. Kiểm tra và xác nhận hoạt động
+Sau khi triển khai, chúng tôi kiểm tra trạng thái dịch vụ:
+sudo docker service ls | grep nginx
+sudo docker service ps nginx
+Kết quả cho thấy dịch vụ Nginx chạy ổn định với 1 replica, thường được Swarm phân bổ trên một node bất kỳ
+ (có hình)
+Để xác nhận các dịch vụ được kết nối đúng, chúng tôi kiểm tra network:
+sudo docker network inspect proxy
+Output liệt kê các container của Nginx, Prometheus, Grafana, Kibana, và các dịch vụ DockerCoins, chứng minh chúng giao tiếp được qua network proxy.
+ (có hình)
+Cuối cùng, kiểm tra khả năng định tuyến bằng cách gửi yêu cầu đến các endpoint:
+curl http://192.168.10.91/prometheus/
+curl http://192.168.10.91/grafana/
+curl http://192.168.10.91/kibana/
+curl http://192.168.10.91/webui/
+Kết quả:
+○	/prometheus/ trả về redirect đến /graph.
+○	/grafana/ trả về trang login.
+○	/kibana/ trả về giao diện Kibana hoặc trạng thái sẵn sàng.
+○	/webui/ trả về giao diện của dịch vụ DockerCoins.
+ (có hình)
+Nếu có lỗi, logs được kiểm tra để xử lý:
+sudo docker service logs nginx
+     Lợi ích của các thao tác CLI:
+• 	Xác minh triển khai: Đảm bảo Reverse Proxy được cấu hình đúng và hoạt động ổn định.
+•	Phát hiện sự cố: Log và trạng thái dịch vụ giúp xác định nhanh các vấn đề như lỗi kết nối hoặc dịch vụ backend không phản hồi.
+•	Hỗ trợ vận hành: Cung cấp công cụ để quản lý và giám sát Reverse Proxy trong môi trường thực tế.
+Kết quả đạt được
+ Reverse Proxy với Nginx được triển khai thành công, cho phép truy cập thống nhất đến các dịch vụ trong hệ thống MrNamCoinSwarm qua một điểm vào duy nhất (cổng 80). Nginx đảm bảo load balancing giữa các replicas, che giấu thông tin backend servers, và hỗ trợ định tuyến linh hoạt dựa trên URL. Việc tích hợp với Swarm giúp hệ thống dễ dàng mở rộng và quản lý, đồng thời đảm bảo tính sẵn sàng cao nhờ cơ chế routing mesh.
+
+CHƯƠNG 3: GIÁM SÁT VÀ TỐI ƯU HÓA
+I .Các metrics được thu thập từ các node
+Để thu thập các metrics nhóm đã sử dụng Node Exporter, một exporter phổ biến cho Prometheus, giúp thu thập đầy đủ thông tin về phần cứng, hệ điều hành, và tài nguyên của từng máy chủ (node).
+Các metric cụ thể đã được thu thập:
+1. CPU, RAM (active or inactive memory), disk usage trên tất cả các node
+1.1 CPU
+node_cpu_seconds_total{mode=...} - tổng thời gian CPU tiêu tốn ở các chế độ:
+-        user: Thời gian xử lý tác vụ người dùng
+-        system: Thời gian xử lý tác vụ hệ thống
+-        idle: Thời gian không sử dụng
+-        iowait: Thời gian chờ I/O
+-        steal, nice, irq, softirq
+-        …
+node_load1, node_load5, node_load15
+Load average trong vòng 1, 5 và 15 phút.
+Lệnh CLI cho node_cpu_seconds_total
+
+curl -s "http://<IP_Node>:9090/api/v1/query?query=node_cpu_seconds_total" | jq
+
+ (có hình)
+ 
+1.2 RAM (active or inactive memory)
+Lệnh CLI cho node_memory
+
+curl -s "http://<IP_Node>:9090/api/v1/query?query=node_memory_" | jq
+
+
+node_memory_MemTotal_bytes: Tổng dung lượng bộ nhớ vật lý.
+ (có hình)
+
+node_memory_MemAvailable_bytes: Dung lượng RAM còn có thể sử dụng.
+ (có hình)
+
+node_memory_Active_bytes, node_memory_Inactive_bytes: RAM đang được sử dụng tích cực hoặc đã tạm dừng.
+ 
+(có hình)
+
+
+node_memory_Cached_bytes, node_memory_Buffers_bytes: RAM dùng cho cache và buffer của hệ điều hành.
+ 
+(có hình)
+node_memory_SwapTotal_bytes, node_memory_SwapFree_bytes: Thông tin về bộ nhớ swap.
+ (có hình)
+3. File đang mở và sockets
+node_filefd_allocated: Số lượng file descriptor đang được sử dụng.
+ (có hình)
+
+node_filefd_maximum: Giới hạn tối đa file descriptor có thể mở.
+ 
+(có hình)
+node_sockstat_TCP_inuse: Số lượng kết nối TCP đang sử dụng.
+ (có hình)
+
+node_sockstat_UDP_inuse: Số kết nối UDP đang mở.
+ (có hình)
+node_sockstat_sockets_used: Tổng số socket đang hoạt động.
+ (có hình)
+4. Các hoạt động của I/O (disk, network)
+4.1 Disk
+node_disk_read_bytes_total, node_disk_written_bytes_total: Tổng số bytes đã đọc/ghi từ thiết bị lưu trữ.
+ 
+(có hình)
+node_disk_reads_completed_total, node_disk_writes_completed_total: Số lần đọc/ghi hoàn thành.
+ (có hình)
+
+node_disk_io_time_seconds_total: Tổng thời gian thiết bị bận rộn xử lý I/O.
+ 
+(có hình)
+node_filesystem_avail_bytes: Tổng dung lượng phân vùng và dung lượng khả dụng.
+ (có hình)
+4.2 Network
+node_network_receive_bytes_total, node_network_transmit_bytes_total: Số lượng byte nhận và truyền qua các interface mạng.
+ (có hình)
+node_network_receive_packets_total, node_network_transmit_packets_total: Tổng số packet gửi và nhận.
+  (có hình)
+II. Truy vấn dữ liệu metrics được thu thập được lưu trữ trong InfluxDB chạy trên swarm
+Trong mô hình triển khai trên Docker Swarm, InfluxDB thường được chạy như một dịch vụ (service) trên một hoặc nhiều node trong cụm Swarm, giúp đảm bảo tính khả dụng và mở rộng.
+Lệnh để truy cập vào InfluxDB:
+
+sudo docker exec -it $(sudo docker ps --filter name=influxdb --format '{{.ID}}') influx
+
+(có hình)
+Sau khi vào được InfluxDB sử dụng các lệnh SQL để truy xuất dữ liệu:
+ (có hình)
+show databases:  xem danh sách các database đã lưu
+ (có hình)
+use prometheus: truy cập vào database prometheus
+show measurements: hiển thị tất cả các metrics đã được ghi vào trong database
+ (có hình)
+ 
+Truy xuất dữ liệu CPU:
+
+SELECT mean("value") FROM "node_cpu_seconds_total"
+WHERE "mode" = 'user' AND time > now() - 5m
+GROUP BY time(1m), "instance";
+
+(có hình)
+ 
+Truy xuất dữ liệu memory
+SELECT mean("value") FROM "node_memory_Active_bytes"
+WHERE time > now() - 5m
+GROUP BY time(1m), "instance";
+
+(có hình)
+ 
+Truy xuất dữ liệu network
+SELECT derivative(mean("value"), 1s) FROM "node_network_receive_bytes_total"
+WHERE "device" != 'lo' AND time > now() - 5m
+GROUP BY time(1m), "instance", "device";
+
+(có hình)
+ 
+Truy xuất file đang mở và socket
+
+SELECT "value" FROM "node_filefd_allocated"
+WHERE time > now() - 5m
+SELECT "value" FROM "node_sockstat_TCP_alloc"
+WHERE time > now() - 5m
+
+
+ (có hình)
+
+SELECT "value" FROM "node_sockstat_TCP_alloc"
+WHERE time > now() - 5m
+(có hình)
+ 
+CHƯƠNG 4: KẾT QUẢ VÀ ĐÁNH GIÁ
+1.	KẾT QUẢ ĐẠT ĐƯỢC
+Sau quá trình triển khai và giám sát hệ thống MrNamCoinSwarm trên nền tảng Docker Swarm kết hợp với các công cụ giám sát hiện đại, nhóm đã đạt được nhiều kết quả tích cực cả về mặt kỹ thuật lẫn hiệu quả quản trị hệ thống:
+-	 Hệ thống hoạt động ổn định với thời gian uptime liên tục trong suốt quá trình thử nghiệm và vận hành.
+
+-	Giao diện người dùng WebUI được truy cập ổn định, phản hồi nhanh, hiển thị dữ liệu theo thời gian thực.
+
+-	 ELK Stack thu thập và phân tích log hiệu quả, giúp dễ dàng phát hiện các lỗi ứng dụng và sự kiện bất thường.
+
+-	 Prometheus & Grafana cung cấp giám sát chi tiết về CPU, bộ nhớ, network, I/O... cho từng container và toàn hệ thống.
+
+-	 InfluxDB lưu trữ dữ liệu metrics dài hạn, hỗ trợ phân tích xu hướng và đánh giá hiệu suất theo thời gian.
+
+-	 Nginx Reverse Proxy hoạt động hiệu quả, định tuyến truy cập linh hoạt đến các dịch vụ nội bộ.
+
+-	 Thiết lập cảnh báo (alert) giúp nhóm phát hiện sớm các tình trạng bất thường và phản ứng kịp thời.
+
+-	 Tối ưu hóa tài nguyên thông qua việc giới hạn container, lọc log, và định kỳ dọn dẹp dữ liệu.
+
+Các kết quả trên cho thấy hệ thống không chỉ vận hành đúng chức năng mà còn đạt được các yêu cầu về giám sát, an toàn và hiệu quả vận hành.
