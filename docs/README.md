@@ -4,7 +4,7 @@
 
 This documentation describes the deployment, monitoring, and optimization of the MrNamCoinSwarm software system based on microservices architecture, using Docker Swarm as the orchestration platform.
 
-![System Overview](assets/system-overview.png)
+<img width="1123" height="692" alt="image" src="https://github.com/user-attachments/assets/3a6f5298-a2f1-480a-bf30-9ae341eae4e5" />
 
 ## Table of Contents
 
