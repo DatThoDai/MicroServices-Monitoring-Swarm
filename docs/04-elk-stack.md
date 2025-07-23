@@ -242,8 +242,6 @@ Create visualizations and dashboards for:
 - **Error Analysis**: Identify and analyze error patterns
 - **Performance Metrics**: Analyze response times and throughput
 
-![Kibana Dashboard](../assets/kibana-dashboard.png)
-
 ## Verification and Testing
 
 ### Service Health Check
