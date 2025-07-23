@@ -236,11 +236,7 @@ Enable Docker daemon metrics on all nodes:
 ```bash
 sudo nano /etc/docker/daemon.json
 ```
-
-**[IMG-12: Docker Daemon Configuration]**
-*Location in original text: "3.4. Cấu hình Docker daemon trên tất cả các node để expose metrics (có hình)"*
-
-![Docker Daemon Configuration](../assets/12-docker-daemon-config.png)
+<img width="588" height="203" alt="image" src="https://github.com/user-attachments/assets/6bfc64e2-0c74-49a9-903b-018d1f47a300" />
 
 Add metrics configuration:
 ```json
@@ -262,11 +258,7 @@ sudo systemctl restart docker
 2. Login with username: `admin`, password: `admin123`
 3. Add Prometheus data source: `http://prometheus:9090`
 4. Create visualizations and dashboards
-
-**[IMG-13: Grafana Dashboard Setup]**
-*Location in original text: "Dashboard sử dụng Promethus/Grafana để phân tích, giám sát hiệu suất swarm - 1. Tạo Dashboard trên GUI (có hình)"*
-
-![Grafana Dashboard Setup](../assets/13-grafana-setup.png)
+<img width="1125" height="229" alt="image" src="https://github.com/user-attachments/assets/e211fff7-69e2-41cb-94cc-88c6dd7fa0e8" />
 
 ### Key Metrics and Queries
 
@@ -275,30 +267,19 @@ sudo systemctl restart docker
 avg(rate(node_cpu_seconds_total{mode!="idle"}[5m])) * 100
 ```
 
-**[IMG-14: CPU Usage Swarm Percentage]**
-*Location in original text: "Phần trăm CPU đang sử dụng trên Swarm (có hình)"*
-
-![CPU Usage Panel](../assets/14-cpu-usage-panel.png)
+<img width="1125" height="615" alt="image" src="https://github.com/user-attachments/assets/6d176bf5-cd2b-49f6-9cda-ba9a5db117ee" />
 
 #### Container CPU Usage
 ```promql
 sum(rate(container_cpu_usage_seconds_total[1m])) by (service_name)
 ```
-
-**[IMG-15: Total Container CPU Usage]**
-*Location in original text: "Tổng CPU container đã sử dụng (có hình)"*
-
-![Container CPU Usage](../assets/15-container-cpu-usage.png)
+<img width="1125" height="596" alt="image" src="https://github.com/user-attachments/assets/2df15704-6d1e-4938-a0e8-2ec11bf5ce0b" />
 
 #### Memory Usage Percentage
 ```promql
 avg(node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100
 ```
-
-**[IMG-16: Memory Usage Swarm Percentage]**
-*Location in original text: "Phần trăm Memory đang sử dụng trên Swarm (có hình)"*
-
-![Memory Usage Panel](../assets/16-memory-usage-panel.png)
+<img width="973" height="523" alt="image" src="https://github.com/user-attachments/assets/65388765-912b-49be-a8b9-13c6a6c2607c" />
 
 #### Network Traffic
 ```promql
@@ -306,9 +287,7 @@ avg(rate(node_network_receive_bytes_total[5m]) + rate(node_network_transmit_byte
 ```
 
 **[IMG-17: Total Cluster Network Traffic]**
-*Location in original text: "Tổng lưu lượng mạng của toàn cụm (Download + Upload) (có hình)"*
-
-![Network Traffic Panel](../assets/17-network-traffic-panel.png)
+<img width="1125" height="604" alt="image" src="https://github.com/user-attachments/assets/e8ebab07-e23b-4eaa-a40f-2c9aa4b3b516" />
 
 #### File Descriptors and Sockets
 ```promql
@@ -317,9 +296,7 @@ sum(node_sockstat_TCP_alloc)
 ```
 
 **[IMG-18: Active Files and Sockets]**
-*Location in original text: "Tổng File đang mở và socket đang hoạt động (có hình)"*
-
-![File Descriptors and Sockets](../assets/18-file-sockets-panel.png)
+<img width="1125" height="613" alt="image" src="https://github.com/user-attachments/assets/ea9b43dc-5210-4cb0-98bb-292ec9781f26" />
 
 #### Disk Usage
 ```promql
@@ -327,16 +304,11 @@ sum(node_sockstat_TCP_alloc)
 ```
 
 **[IMG-19: Disk Usage Panel]**
-*Location in original text: "Disk (có hình)"*
-
-![Disk Usage Panel](../assets/19-disk-usage-panel.png)
+<img width="1125" height="610" alt="image" src="https://github.com/user-attachments/assets/e500b31e-2d59-4bea-a1eb-559b3991f8b3" />
 
 ### Complete Dashboard Overview
+<img width="1125" height="610" alt="image" src="https://github.com/user-attachments/assets/1b4dc76b-8e56-4646-8464-267bd9709b93" />
 
-**[IMG-20: Complete Monitoring Dashboard]**
-*Location in original text: "Tổng thể Dashboard để giám sát (có hình)"*
-
-![Complete Dashboard Overview](../assets/20-complete-dashboard.png)
 
 ### Dashboard Components
 Create comprehensive dashboards including:
