@@ -76,7 +76,7 @@ After the complete deployment and monitoring setup process, the MrNamCoinSwarm s
 **[IMG-52: Cluster-wide CPU Performance Dashboard]**
 *Location in original text: "Dashboard hiệu suất CPU toàn cluster (có hình)"*
 
-![CPU Performance Dashboard](../assets/52-cpu-performance-dashboard.png)
+<img width="1125" height="615" alt="image" src="https://github.com/user-attachments/assets/38d4f031-c020-4d46-bb1c-233e69a03f42" />
 
 #### Cluster-wide CPU Utilization
 - **Average CPU Usage**: 15-25% under normal load
@@ -93,10 +93,7 @@ After the complete deployment and monitoring setup process, the MrNamCoinSwarm s
 
 ### Memory Performance
 
-**[IMG-53: Memory Performance Analysis]**
-*Location in original text: "Phân tích hiệu suất Memory (có hình)"*
-
-![Memory Performance Analysis](../assets/53-memory-performance-analysis.png)
+<img width="973" height="523" alt="image" src="https://github.com/user-attachments/assets/5d75b485-3045-4fde-b1f3-f6e2df67ff32" />
 
 #### Memory Utilization Patterns
 - **Total Memory Usage**: 40-60% across the cluster
@@ -113,10 +110,7 @@ After the complete deployment and monitoring setup process, the MrNamCoinSwarm s
 
 ### Network Performance
 
-**[IMG-54: Network Traffic Analysis Dashboard]**
-*Location in original text: "Dashboard phân tích Network Traffic (có hình)"*
-
-![Network Traffic Analysis](../assets/54-network-traffic-analysis.png)
+<img width="1125" height="604" alt="image" src="https://github.com/user-attachments/assets/092b2ed3-927d-4d51-9c64-bb780e161d56" />
 
 #### Network Traffic Analysis
 - **Inter-service Communication**: Low latency communication between services
@@ -131,10 +125,7 @@ After the complete deployment and monitoring setup process, the MrNamCoinSwarm s
 
 ### Storage Performance
 
-**[IMG-55: Storage Utilization Dashboard]**
-*Location in original text: "Dashboard sử dụng Storage (có hình)"*
-
-![Storage Utilization Dashboard](../assets/55-storage-utilization-dashboard.png)
+<img width="1125" height="610" alt="image" src="https://github.com/user-attachments/assets/10e7f7f6-7524-4ae4-aab9-17e2371d65e8" />
 
 #### Disk Utilization
 - **Elasticsearch Indices**: 2-5GB of log data storage
@@ -150,10 +141,8 @@ After the complete deployment and monitoring setup process, the MrNamCoinSwarm s
 
 ## 8.3 Operational Benefits
 
-**[IMG-56: Operational Dashboard Overview]**
-*Location in original text: "Tổng quan Dashboard vận hành (có hình)"*
+<img width="1125" height="610" alt="image" src="https://github.com/user-attachments/assets/03ff6589-2513-4470-a5ea-d485ce26bad5" />
 
-![Operational Dashboard Overview](../assets/56-operational-dashboard-overview.png)
 
 ### Centralized Management
 #### Single Point of Control
@@ -185,10 +174,8 @@ After the complete deployment and monitoring setup process, the MrNamCoinSwarm s
 
 ## 8.4 System Reliability Assessment
 
-**[IMG-57: System Reliability Metrics]**
-*Location in original text: "Metrics độ tin cậy hệ thống (có hình)"*
-
-![System Reliability Metrics](../assets/57-system-reliability-metrics.png)
+<img width="1125" height="165" alt="image" src="https://github.com/user-attachments/assets/85bd9aed-b278-49b0-ac20-4554e8dd20fc" />
+<img width="1125" height="394" alt="image" src="https://github.com/user-attachments/assets/de4258d2-ebc8-4402-8477-b32e649c63f2" />
 
 ### Availability Metrics
 - **Service Uptime**: 99.9% availability across all services
@@ -203,11 +190,6 @@ After the complete deployment and monitoring setup process, the MrNamCoinSwarm s
 - **Hardware Tolerance**: Graceful handling of hardware failures
 
 ## 8.5 Cost-Benefit Analysis
-
-**[IMG-58: Cost-Benefit Analysis Chart]**
-*Location in original text: "Biểu đồ phân tích chi phí-lợi ích (có hình)"*
-
-![Cost-Benefit Analysis](../assets/58-cost-benefit-analysis.png)
 
 ### Resource Efficiency
 #### Optimization Results
@@ -241,11 +223,6 @@ After the complete deployment and monitoring setup process, the MrNamCoinSwarm s
 
 ## 8.7 Future Recommendations
 
-**[IMG-59: Future Roadmap Timeline]**
-*Location in original text: "Timeline roadmap tương lai (có hình)"*
-
-![Future Roadmap Timeline](../assets/59-future-roadmap-timeline.png)
-
 ### Short-term Improvements
 #### Immediate Enhancements
 - **Alert Tuning**: Fine-tune alert thresholds based on operational experience
@@ -262,10 +239,7 @@ After the complete deployment and monitoring setup process, the MrNamCoinSwarm s
 
 ## 8.8 Conclusion
 
-**[IMG-60: Final System Architecture Overview]**
-*Location in original text: "Tổng quan kiến trúc hệ thống cuối cùng (có hình)"*
-
-![Final System Architecture](../assets/60-final-system-architecture.png)
+<img width="1264" height="783" alt="image" src="https://github.com/user-attachments/assets/7fd236f0-a20c-4fa1-aada-02823882e16e" />
 
 The MrNamCoinSwarm system implementation has successfully demonstrated the effectiveness of combining Docker Swarm orchestration with comprehensive monitoring and logging solutions. The results show that the system not only operates correctly but also meets requirements for monitoring, security, and operational efficiency.
 
