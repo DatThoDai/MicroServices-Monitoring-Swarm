@@ -57,17 +57,22 @@ sum(rate(container_cpu_usage_seconds_total[1m])) by (service_name)
 ### Memory Utilization Metrics
 - **node_memory_MemTotal_bytes**: Total physical memory capacity
 <img width="1125" height="400" alt="image" src="https://github.com/user-attachments/assets/f0ba533e-c302-4caa-8dab-ad4a1d893f91" />
+
 - **node_memory_MemAvailable_bytes**: Available memory for applications
 <img width="1125" height="383" alt="image" src="https://github.com/user-attachments/assets/03d3d21f-f402-4fa8-b28a-e8786a1ab78a" />
+
 - **node_memory_Active_bytes**: Memory currently in active use
 - **node_memory_Inactive_bytes**: Memory that was recently used but is now inactive
 <img width="1125" height="400" alt="image" src="https://github.com/user-attachments/assets/99fd2f18-6d88-48ff-af2d-5d003dfeada2" />
+
 - **node_memory_Cached_bytes**: Memory used for file system cache
 - **node_memory_Buffers_bytes**: Memory used for system buffers
 <img width="1125" height="394" alt="image" src="https://github.com/user-attachments/assets/28b92690-8266-4ae7-a206-d63c1ca82374" />
+
 - **node_memory_SwapTotal_bytes**: Total swap memory
 - **node_memory_SwapFree_bytes**: Available swap memory
 <img width="1125" height="379" alt="image" src="https://github.com/user-attachments/assets/e24d345f-c221-4216-a4a0-f38c23b29d6b" />
+
 ### CLI Query Example
 
 ```bash
