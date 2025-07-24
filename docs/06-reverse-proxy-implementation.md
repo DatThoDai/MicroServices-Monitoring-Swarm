@@ -23,10 +23,7 @@ This network enables Nginx to communicate with services across different network
 
 ### Main Configuration File (nginx.conf)
 
-**[IMG-21: Nginx Main Configuration]**
-*Location in original text: "nginx.conf: Định nghĩa cấu hình chính của Nginx (có hình)"*
-
-![Nginx Configuration](../assets/21-nginx-config.png)
+<img width="940" height="750" alt="image" src="https://github.com/user-attachments/assets/c32bf1fc-4339-4e99-923d-173d1a1d7ebf" />
 
 Create the primary Nginx configuration:
 
@@ -67,10 +64,8 @@ http {
 
 ### Routing Configuration (default.conf)
 
-**[IMG-22: Nginx Routing Configuration]**
-*Location in original text: "Routing rules cho services (có hình)"*
-
-![Nginx Routing Configuration](../assets/22-nginx-routing.png)
+<img width="1006" height="1594" alt="image" src="https://github.com/user-attachments/assets/8a4af685-66e7-4fbc-b3fa-0959578e3445" />
+<img width="1005" height="753" alt="image" src="https://github.com/user-attachments/assets/561c1fab-b61c-4d8e-af08-670d3b9a7e36" />
 
 Create the routing rules for services:
 
@@ -185,11 +180,6 @@ sudo docker config create default_conf default.conf
 
 ## 6.4 Nginx Service Deployment
 
-**[IMG-23: Nginx Service Deployment Result]**
-*Location in original text: "Deploy Nginx service với multi-network (có hình)"*
-
-![Nginx Deployment](../assets/23-nginx-deployment.png)
-
 Deploy the Nginx service with multi-network connectivity:
 
 ```bash
@@ -215,30 +205,19 @@ sudo docker service create \
 
 ### Service Status Check
 
-**[IMG-24: Nginx Service Status]**
-*Location in original text: "Kiểm tra trạng thái Nginx service (có hình)"*
-
-![Nginx Service Status](../assets/24-nginx-service-status.png)
-
-Verify Nginx deployment:
-
 ```bash
 sudo docker service ls | grep nginx
 sudo docker service ps nginx
 ```
 
-### Network Connectivity Verification
-
-**[IMG-25: Network Inspection Results]**
-*Location in original text: "Kiểm tra network connections (có hình)"*
-
-![Network Inspection](../assets/25-network-inspection.png)
+<img width="1125" height="165" alt="image" src="https://github.com/user-attachments/assets/0ad3d3a0-bb64-4ced-886b-5e7b603c2784" />
 
 Check network connections:
 
 ```bash
 sudo docker network inspect proxy
 ```
+<img width="998" height="1369" alt="image" src="https://github.com/user-attachments/assets/f61b0be9-3230-4daf-81a3-8dd4e3a17407" />
 
 This should show Nginx and all connected services in the network.
 
@@ -270,10 +249,7 @@ curl http://192.168.10.91/metrics/
 
 ### Expected Results
 
-**[IMG-26: Endpoint Testing Results]**
-*Location in original text: "Kết quả test các endpoints (có hình)"*
-
-![Endpoint Testing Results](../assets/26-endpoint-testing.png)
+<img width="728" height="617" alt="image" src="https://github.com/user-attachments/assets/e266a5ae-2149-4904-b2b9-c1c11dd90a11" />
 
 - **/prometheus/**: Returns redirect to `/graph` or Prometheus interface
 - **/grafana/**: Returns Grafana login page or interface
